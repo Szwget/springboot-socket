@@ -31,11 +31,14 @@ public class SendMessageListener implements DataListener<MessageBean> {
     @Override
     public void onData(SocketIOClient client, MessageBean data, AckRequest ackSender) throws Exception {
 
-        String roomName = data.getRoomName();
-        String option = data.getOption();
+        String roomName = data.getRoomName();//获取房间唯一标识
+        String option = data.getOption();//获取操作类型
         BroadcastOperations bo = server.getRoomOperations(roomName);
         if ("send".equals(option)) {
-            log.info("{}进入发送消息事件",client.getSessionId());
+            log.info("{}进入发送消息事件",client.getSessionId());//调试时使用
+            //发送消息到指定房间，目前在线的所有用户可接收到数据,包括自己,如果自己发送的消息，无需服务器再次推送给自己
+            //可以调用 bo.sendEvent(Config.TARGETEVENT,client,data);
+            //此方法可以发送消息给除自己外的其他客户端
             bo.sendEvent(Config.TARGETEVENT, data);
         } else {
             log.info("{}进入错误分支",client.getSessionId());
