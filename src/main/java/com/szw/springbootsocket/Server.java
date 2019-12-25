@@ -32,9 +32,7 @@ public class Server implements CommandLineRunner {
     }
 
     public void init() {
-//        Configuration config = new Configuration();
-//        config.setPort(prot);
-//        final SocketIOServer server = new SocketIOServer(config);
+
         // 连接监听器
         server.addConnectListener(new AppConnectListener(server));
         // 断开连接监听器
