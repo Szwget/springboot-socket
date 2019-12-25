@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://cdn.bootcss.com/vue/2.5.22/vue.min.js"></script>
+		<script src="layer_mobile/layer.js"></script>
+		<script src="https://cdn.bootcss.com/socket.io/2.2.0/socket.io.slim.js"></script>
+	</head>
+	<title>User2</title>
+	<body class="luck-draw-input-box">
+		<div id="luck_login" class="luck-draw-input">
+			<div>
+                <input id="uid" name="uid" type="text" placeholder="请输入消息" class="name" v-model="msg">
+                <a href="javascript:;" class="draw-btn" v-on:click="subMsg">发送</a>
+            </div>
+			<div v-for="(item,index) in content" style="display: flex;">
+                <p :key="index" style="margin-right: 10px;">{{item.userName}}:</p>
+                <p :key="index">{{item}}</p>
+            </div>
+		</div>
+		<script>
+		var mv = new Vue({
+			el:'#luck_login',
+			data:{
+				uid:'',
+				username:'',
+                socket:'',
+                msg:'',
+                content:[]
+			},
+            created(){
+			    this.join()
+            },
+			methods:{
+				join(event){
+				    let self = this;
+					//开始连接server
+                    self.socket = io('http://192.168.1.190:10099',{transports:['websocket']});
+					//debugger
+                    self.socket.on('connect', function(data){
+                        self.socket.emit('roomevent', {//roomDataListener
+                            roomName: "001",
+                            userId: "002",
+                            userName:"BBB",
+                            option: "join"
+						});
+					});
+					//点对点的消息
+                    self.socket.on('target', function(data) {
+						console.log(data);
+						mv.content.push(data);
+					});
+                    self.socket.on('chatevent', function(data) {
+						console.log("chatevent");
+						console.log(data);
+                        if(data){
+                            mv.content.push(data);
+                        }
+					});
+				},
+                subMsg(){
+					mv.msg = ""
+                    this.socket.emit('chatevent',{
+						roomName: "001",
+                        userName:"BBB",
+                        token: "002",
+                        message:this.msg,
+                        option:'send'
+                    })
+                }
+			}
+		})
+		</script>
+	</body>
+
+</html>
